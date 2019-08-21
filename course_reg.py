@@ -1,6 +1,12 @@
 import requests
 from bs4 import BeautifulSoup as bs
 
+majorsDict = {
+    "cs": ("http://catalogue.uci.edu/donaldbrenschoolofinformationandcomputersciences/departmentofcomputerscience/#majorstext", 1),
+    "ge": ("http://catalogue.uci.edu/informationforadmittedstudents/requirementsforabachelorsdegree/", 9),
+    "gs_minor": ("http://catalogue.uci.edu/interdisciplinarystudies/globalsustainability/", 1)
+}
+
 # This function gets the name of the department from the beginning of the class' name ("MATH" from "MATH 6B").
 # It's used for when a series of courses is listed like "I&C SCI 31-32-33". This is because the findCourses function will add to the list "I&C SCI 31", "32", and "33" (the latter two lack the department).
 def getPrefix(className):
@@ -10,7 +16,10 @@ def getPrefix(className):
     return className[:-1]
 
 # This function performs the searching for courses given a url for a major/minor/ge.
-def findCourses(url, attrs, numTables):
+def findCourses(tup):
+    url = tup[0]
+    numTables = tup[1]
+
     # The soup object takes the block of dense html in page and makes it easier to parse.
     page = requests.get(url)
     soup = bs(page.text, "html.parser")
@@ -22,9 +31,7 @@ def findCourses(url, attrs, numTables):
     # Loop through each table of classes.
     for i in range(numTables):
         # Loop through each link object in each table and add it to the array.
-        tables = soup.find_all("table")[i]
-        tableBodies = tables
-        aObjs = tableBodies.find_all("a")
+        aObjs = soup.find_all("table")[i].find_all("a")
         for a in aObjs:
             classes_obj.append(a)
 
@@ -32,7 +39,8 @@ def findCourses(url, attrs, numTables):
     for i in range(len(classes_obj)):
         # The if is checking to see if there exists a prefix on the class yet. All of the classes without prefixes begin with a space because of the webpage's formatting.
         if classes_obj[i].text[0] == ' ':
-            classes_names.append(getPrefix(classes_names[i-1]) + classes_obj[i].text)
+            # The classes without prefixes already begin with a space, but it has a different ascii value than the spaces on the site, so I'm swapping them out here.
+            classes_names.append(getPrefix(classes_names[i-1]) + chr(160) + classes_obj[i].text[1:])
         else:
             classes_names.append(classes_obj[i].text)
     
@@ -49,16 +57,14 @@ def findShared(a, b):
     else:
         return "no common elements"
 
+
 if __name__ == "__main__":
-    csUrl = "http://catalogue.uci.edu/donaldbrenschoolofinformationandcomputersciences/departmentofcomputerscience/#majorstext"
-    csCourses = findCourses(csUrl, {"class" : "sc_courselist"}, 1)
+    m1Courses = findCourses(majorsDict["ge"])
+    m2Courses = findCourses(majorsDict["gs_minor"])
 
-    geUrl = "http://catalogue.uci.edu/informationforadmittedstudents/requirementsforabachelorsdegree/"
-    geCourses = findCourses(geUrl, {}, 9)
-
-    shared = findShared(csCourses, geCourses)
-    for a in shared:
-        print(a)
-
-    # clean up findCourses loop
-    # ICS 32 didn't show as common
+    shared = findShared(m1Courses, m2Courses)
+    if (type(shared) == str):
+        print(shared)
+    else:
+        for a in shared:
+            print(a)
