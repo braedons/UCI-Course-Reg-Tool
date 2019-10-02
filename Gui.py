@@ -6,6 +6,7 @@ import ClassLookup as cl
 
 study_areas_dict = cl.read_studyarea_csv()
 options = list(study_areas_dict.keys())
+options.sort()
 SELECT_MSG = "Select an Area of Study"
 
 def check_submission(course_a, course_b):
@@ -70,13 +71,13 @@ def main():
     menubar = Menu(root)
     filemenu = Menu(menubar, tearoff=0)
     def update_study_areas():
-        # cl.find_study_area_urls()
+        cl.find_study_area_urls()
         study_areas_dict = cl.read_studyarea_csv()
         options = list(study_areas_dict.keys())
         options.sort()
+        print(options)
         dropdown_a.config(values=options)
         dropdown_b.config(values=options)
-    update_study_areas()
     filemenu.add_command(label="Refresh Study Area Choices", command=update_study_areas)
     menubar.add_cascade(label="File", menu=filemenu)
     root.config(menu=menubar)

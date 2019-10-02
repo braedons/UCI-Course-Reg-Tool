@@ -7,7 +7,7 @@ import csv
 # The starting table will usually be 0, but it might be higher depending on the webpage
 majors_dict = {
     "cs": ("http://catalogue.uci.edu/donaldbrenschoolofinformationandcomputersciences/departmentofcomputerscience/#majorstext", 1, 0),
-    "ge": ("http://catalogue.uci.edu/informationforadmittedstudents/requirementsforabachelorsdegree/", 9, 0),
+    "GE": ("http://catalogue.uci.edu/informationforadmittedstudents/requirementsforabachelorsdegree/", "GE"),
     "gs_minor": ("http://catalogue.uci.edu/interdisciplinarystudies/globalsustainability/", 1, 0)
 }
 
@@ -17,7 +17,6 @@ def match_areas(study_areas, titles):
     for url in study_areas:
         for area in study_areas[url]:
             split = area.split(", ", 1)
-            print(split)
             
             for title in titles[url]:
                 if len(split) == 1:
@@ -57,6 +56,8 @@ def write_studyarea_csv(study_area_links):
     # Write to the csv (title, url)
     with open("studyarea_url_info.csv", mode='w') as file:
         writer = csv.writer(file, lineterminator = '\n')
+
+        writer.writerow(["GE", "http://catalogue.uci.edu/informationforadmittedstudents/requirementsforabachelorsdegree/", "GE"])
 
         for area in study_areas_matched:
             writer.writerow(area)
@@ -138,7 +139,6 @@ def swap_space_32_to_160(str):
 # tup = (url, header title)
 def find_courses(tup):
     url = tup[0]
-    print(url)
     header_title = tup[1]
 
     # The soup object takes the block of dense html in page and makes it easier to parse.
@@ -150,10 +150,17 @@ def find_courses(tup):
     classes_names = []
     aObjs = []
 
-    headers = soup.find_all("h4")
-    for h4 in headers:
-        if h4.text == header_title:
-            aObjs = h4.find_next_sibling("div").find("table").find_all('a')
+    if header_title == "GE":
+        # Loop through each table of classes.
+        for i in range(9):
+            # Loop through each link object in each table and add it to the array.
+            objs = soup.find_all("table")[i].find_all("a")
+            aObjs += objs
+    else:
+        headers = soup.find_all("h4")
+        for h4 in headers:
+            if h4.text == header_title:
+                aObjs = h4.find_next_sibling("div").find("table").find_all('a')
 
     for a in aObjs:
         classes_obj.append(a)
@@ -209,14 +216,23 @@ def translate_to_ge_category(nums):
 
 # This function creates a list of all GE classes and their corresponding GE categories
 def gen_cat_dict():
+    course_list = find_courses(majors_dict["GE"])
     # Create a dictionary with an empty list for each course
-    courses_ge_cat_dict = {a: [] for a in find_courses(majors_dict["ge"][0])}
+    courses_ge_cat_dict = {a: [] for a in course_list}
     
-    # Loop through each GE category and add it to the corresponding courses in the dictionary
+    url = majors_dict["GE"][0]
+    header_title = majors_dict["GE"][1]
+
+    # The soup object takes the block of dense html in page and makes it easier to parse.
+    page = requests.get(url)
+    soup = bs(page.text, "html.parser")
+    objs = soup.find_all("table")
+
+    # Loop through each table of classes.
     for i in range(9):
-        for course in find_courses((majors_dict["ge"][0], 1, i)):
-            courses_ge_cat_dict[course].append(i)
-    
+        for course in objs[i].find_all("a"):
+            courses_ge_cat_dict[course.text].append(i)
+
     return courses_ge_cat_dict
 
 # This is the function called by Gui.py that combines all of the above functions
@@ -226,16 +242,16 @@ def full_lookup(course_a_str, course_b_str, dict):
 
     shared = find_shared(area1_courses, area2_courses)
 
-    if (type(shared) != str):
+    if (shared[0] != "no common elements"):
         # This if statement adds the GE categories to the end of the string if relevant
-        if (course_a_str == "ge" or course_b_str == "ge"):
+        if (course_a_str == "GE" or course_b_str == "GE"):
             courses_ge_cat_dict = gen_cat_dict()
-            # Necessary so that we can loop over the values and edit them 
-            shared = list(shared)
+            print(courses_ge_cat_dict)
             
             for i in range(len(shared)):
-                shared[i] += ": " + str(translate_to_ge_category(courses_ge_cat_dict[shared[i]]))
-
+                a = str(translate_to_ge_category(courses_ge_cat_dict[shared[i]]))
+                print(a)
+                shared[i] += ": " + a
     return shared
 
 if __name__ == "__main__":
@@ -256,24 +272,24 @@ if __name__ == "__main__":
 #     page = requests.get(url)
 #     soup = bs(page.text, "html.parser")
 
-#     # The classes array stores the link objects. The classes_names array stores the class names.
-#     classes_obj = []
-#     classes_names = []
+    # # The classes array stores the link objects. The classes_names array stores the class names.
+    # classes_obj = []
+    # classes_names = []
 
-#     # Loop through each table of classes.
-#     for i in range(start_table, start_table + num_tables):
-#         # Loop through each link object in each table and add it to the array.
-#         aObjs = soup.find_all("table")[i].find_all("a")
-#         for a in aObjs:
-#             classes_obj.append(a)
+    # # Loop through each table of classes.
+    # for i in range(start_table, start_table + num_tables):
+    #     # Loop through each link object in each table and add it to the array.
+    #     aObjs = soup.find_all("table")[i].find_all("a")
+    #     for a in aObjs:
+    #         classes_obj.append(a)
 
-#     # This loop adds all of the classes to the classes_names array, adding a prefix if it wasn't already present.
-#     for i in range(len(classes_obj)):
-#         # The if is checking to see if there exists a prefix on the class yet. All of the classes without prefixes begin with a space because of the webpage's formatting.
-#         if classes_obj[i].text[0] == ' ':
-#             # The classes without prefixes already begin with a space, but it has a different ascii value than the spaces on the site, so I'm swapping them out here.
-#             classes_names.append(get_prefix(classes_names[i-1]) + chr(160) + classes_obj[i].text[1:])
-#         else:
-#             classes_names.append(classes_obj[i].text)
+    # # This loop adds all of the classes to the classes_names array, adding a prefix if it wasn't already present.
+    # for i in range(len(classes_obj)):
+    #     # The if is checking to see if there exists a prefix on the class yet. All of the classes without prefixes begin with a space because of the webpage's formatting.
+    #     if classes_obj[i].text[0] == ' ':
+    #         # The classes without prefixes already begin with a space, but it has a different ascii value than the spaces on the site, so I'm swapping them out here.
+    #         classes_names.append(get_prefix(classes_names[i-1]) + chr(160) + classes_obj[i].text[1:])
+    #     else:
+    #         classes_names.append(classes_obj[i].text)
     
 #     return classes_names
