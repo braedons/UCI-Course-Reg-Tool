@@ -1,6 +1,9 @@
+# pyinstaller Gui.py -F --noconsole --icon=chip_logo.ico
+
 import tkinter as tk
 from tkinter import ttk
 from tkinter import Menu
+from tkinter import messagebox
 import ClassLookup as cl
 
 
@@ -23,7 +26,7 @@ def main():
     root = tk.Tk()
     root.geometry("800x600-100+100")
     root.title("Double Dip")
-    root.iconbitmap("chip_logo.ico") #freepik
+    # root.iconbitmap("chip_logo.ico") #freepik
 
     input_frame = tk.Frame(root, bg="lightgrey")
     input_frame.place(relwidth='0.8', relheight='0.2', relx='0.1', rely='0.1')
@@ -81,6 +84,21 @@ def main():
     filemenu.add_command(label="Refresh Study Area Choices", command=update_study_areas)
     menubar.add_cascade(label="File", menu=filemenu)
     root.config(menu=menubar)
+
+    def export():
+        a = var_a.get()
+        b = var_b.get()
+
+        # try catch for file name weird symbols
+        file = open(a + b + ".txt", "w")
+        for course in my_list.get(0, my_list.size()):
+            file.write(course + "\n")
+        file.close()
+
+        messagebox.showinfo("Export Notification", "Export probably successful?")
+
+    export_button = tk.Button(root, text="Export to txt", command=export)
+    export_button.place(relx='0.5', rely='0.98', anchor='s')
 
     root.mainloop()
 
