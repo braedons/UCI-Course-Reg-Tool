@@ -34,4 +34,4 @@
 * Logo - Drawn by Freepik, colored by Braedon Schmidt
 
 
-[here]: bit.ly/32khOuB "DoubleDip Download Link"
+[here]: https://bit.ly/32khOuB "DoubleDip Download Link"
