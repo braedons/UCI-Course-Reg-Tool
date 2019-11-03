@@ -2,7 +2,7 @@
  A program to help you *double dip* with classes at UCI.
  
 ## Motivation
- I was trying to plan my schedule as an incoming 1st year, but I realized that there seemed like a lot of classes overlapped between the General Education courses, and my Major and Minor. So put a little web crawler to benefit myself and other students at this campus, to help them save a bit of time and money.
+ I was trying to plan my schedule as an incoming 1st year, but I realized that there seemed like a lot of classes overlapped between the General Education courses, and my Major and Minor. So put a little web scraper to benefit myself and other students at this campus, to help them save a bit of time and money.
  
 ## Screenshots
 ![CS and GE Screenshot](/cs_ge.PNG?raw=true "CS and GE Screenshot")
