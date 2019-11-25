@@ -15,13 +15,14 @@
 
 ## To-Do:
 * **Fix the issue with getting study area names**
+* **Show current classes offered**
+* **Filter by GE Category**
 * **Make the code pretty**
 * **Add support for alternative course names**
 * **ClassLookup.get_prefix() exception handling** (if/else check for prefix won't work with 1st class not having prefix)
 * **Address Windows Defender security concern**
 * **Clean up UI**
 * **Organize files**
-* **Show current classes offered**
 * ~~Make .exe~~
 * ~~More areas of study~~
 * ~~Export txt file for classes~~
