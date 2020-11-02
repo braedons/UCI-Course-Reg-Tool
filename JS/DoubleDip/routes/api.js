@@ -1,10 +1,7 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const { ClassesController } = require('../controllers');
 
-router.get('/', (req, res, next) => {
-	var cat1 = res.get('cat1');
-	var cat2 = res.get('cat2');
-	res.send(cat1 + " " + cat2);
-});
+router.get('/overlap', ClassesController.overlap);
 
 module.exports = router;
