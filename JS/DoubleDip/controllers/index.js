@@ -2,7 +2,7 @@ const { ClassesServices } = require('../services');
 const { getOverlap } = ClassesServices
 
 class ClassesController {
-	overlap(req, res, next) {
+	static overlap(req, res, next) {
 		var comparand1 = req.query.comparand1;
 		var comparand2 = req.query.comparand2;
 
@@ -12,7 +12,7 @@ class ClassesController {
 		}
 
 		try {
-			overlapList = getOverlap(comparand1, comparand2);
+			let overlapList = getOverlap(comparand1, comparand2);
 
 			res.send({
 				comparand1: comparand1,

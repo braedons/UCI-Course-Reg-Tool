@@ -1,9 +1,9 @@
-const { classesDb } = require('../db')
+const { ClassesDB } = require('../db')
 
 class ClassesServices {
-	getOverlap(comparand1, comparand2) {
-		list1 = classesDb.getClassList(comparand1);
-		list2 = classesDb.getClassList(comparand2);
+	static getOverlap(comparand1, comparand2) {
+		let list1 = ClassesDB.getClassList(comparand1);
+		let list2 = ClassesDB.getClassList(comparand2);
 
 		if (list1 == null || list2 == null) {
 			throw "Comparands weren't found";
