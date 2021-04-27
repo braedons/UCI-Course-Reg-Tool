@@ -28,4 +28,4 @@ class ClassesController {
 
 module.exports = {
 	ClassesController
-}
+};
